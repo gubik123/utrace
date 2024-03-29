@@ -1,0 +1,10 @@
+[package]
+name = "rtt_trace"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+defmt = "0.3.6"
+rtt_trace_macros = {path = "../rtt_trace_macros"}

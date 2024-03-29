@@ -1,0 +1,10 @@
+SECTIONS
+{
+    ._trace_point 1 (INFO): 
+    {
+        . = 1;
+        *(_trace_point*);
+
+        KEEP(*(_trace_point*));
+    }
+}   
