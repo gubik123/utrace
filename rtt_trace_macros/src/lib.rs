@@ -1,45 +1,90 @@
-use proc_macro2::{Ident, Span, TokenStream};
+use darling;
+use darling::ast::NestedMeta;
+use darling::{Error, FromMeta};
+use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn;
 
 #[proc_macro]
 pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    let entry_hash = hash(&format!("{:?}", Span::call_site()));
-    let exit_hash = hash(&format!("{:?}", Span::call_site()));
+    let attr_args = match NestedMeta::parse_meta_list(input.into()) {
+        Ok(v) => v,
+        Err(e) => {
+            return proc_macro::TokenStream::from(Error::from(e).write_errors());
+        }
+    };
 
-    let file = file!();
-    let line = line!();
+    let args = match TraceAttrs::from_list(&attr_args) {
+        Ok(v) => v,
+        Err(e) => {
+            return proc_macro::TokenStream::from(e.write_errors());
+        }
+    };
 
-    let uniqe_name_entry = &format!("Entry_{}", &entry_hash);
-    let uniqe_name_exit = &format!("Exit_{}", &exit_hash);
+    let entry_hash = hash(&format!("Entry_{:?}", Span::call_site()));
+    let exit_hash = hash(&format!("Exit_{:?}", Span::call_site()));
 
-    let trace_body_gen = quote!(
+    let uniqe_name_entry = &format!("{}", &entry_hash);
+    let uniqe_name_exit = &format!("{}", &exit_hash);
 
-        #[link_section="_trace_point"]
-        #[export_name=concat!("enter_", #file, "_", #line, "_", #uniqe_name_entry)]
+    let trace_body_gen;
 
-        static ENTRY_ID_HOLDER: u8 = 0;
-        let entry_id = &ENTRY_ID_HOLDER as *const u8 as u8;
+    if let Some(trace_each_nth_count) = args.trace_each_nth_count {
+        trace_body_gen = quote!(
 
-        #[link_section="_trace_point"]
-        #[export_name=concat!("exit_", #file, "_", #line, "_", #uniqe_name_exit)]
+            let tracer = rtt_trace::Tracer::new(
+                Some({
+                    #[link_section = "_trace_point"]
+                    #[export_name=concat!("enter_", module_path!(), "_", line!(), ":", column!(), ":", #uniqe_name_entry)]
+                    static ENTRY_ID_HOLDER: u8 = 0;
+                    &ENTRY_ID_HOLDER as *const u8 as u8
+                }),
+                Some({
+                    #[link_section = "_trace_point"]
+                    #[export_name=concat!("exit_", module_path!(), "_", line!(), ":", column!(), ":",  #uniqe_name_exit)]
+                    static END_ID_HOLDER: u8 = 0;
+                    &END_ID_HOLDER as *const u8 as u8
+                }),
+                SkipConfig::Skip {
+                    counter: {  static mut TRACE_COUNTER: u32 = 0;
+                                unsafe {&mut TRACE_COUNTER}},
+                    limit: #trace_each_nth_count,
+                },
+            );
+        )
+    } else {
+        trace_body_gen = quote!(
+            static mut TRACE_COUNTER: u32 = 0;
 
-        static END_ID_HOLDER: u8 = 0;
-        let exit_id = &END_ID_HOLDER as *const u8 as u8;
-
-        let tracer = rtt_trace::Tracer::new(Some(entry_id), Some(exit_id));
-
-    );
+            let tracer = rtt_trace::Tracer::new(
+                Some({
+                    #[link_section = "_trace_point"]
+                    #[export_name=concat!("enter_", module_path!(), "_", line!(), ":", column!(), ":", #uniqe_name_entry)]
+                    static ENTRY_ID_HOLDER: u8 = 0;
+                    &ENTRY_ID_HOLDER as *const u8 as u8
+                }),
+                Some({
+                    #[link_section = "_trace_point"]
+                    #[export_name=concat!("exit_", module_path!(), "_", line!(), ":", column!(), ":",  #uniqe_name_exit)]
+                    static END_ID_HOLDER: u8 = 0;
+                    &END_ID_HOLDER as *const u8 as u8
+                }),
+                SkipConfig::NoSkip,
+            );
+        )
+    }
 
     trace_body_gen.into()
 }
 
 #[proc_macro_attribute]
 pub fn trace(
-    _args: proc_macro::TokenStream,
+    attr: proc_macro::TokenStream,
     input: proc_macro::TokenStream,
 ) -> proc_macro::TokenStream {
     let ast: syn::ItemFn = syn::parse(input).expect("Failed to parse input as a function");
+    let attr: TokenStream = attr.into();
+
     let head_ident = &ast.sig;
     let body = &ast.block;
 
@@ -47,12 +92,18 @@ pub fn trace(
         #head_ident {
         let mut body_future = core::pin::pin!(async move #body);
             core::future::poll_fn(|cx| {
-            rtt_trace::trace_here!();
+            rtt_trace::trace_here!(#attr);
             body_future.as_mut().poll(cx)}).await
         }
     };
 
     expanded.into()
+}
+
+#[derive(Debug, FromMeta)]
+struct TraceAttrs {
+    #[darling(default)]
+    trace_each_nth_count: Option<u32>,
 }
 
 fn hash(string: &str) -> u64 {
