@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 defmt = "0.3.6"
 rtt_trace_macros = {path = "../rtt_trace_macros"}
+
+[dev-dependencies]
+proptest = "1.4.0"
