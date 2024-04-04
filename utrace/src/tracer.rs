@@ -1,5 +1,3 @@
-#![no_std]
-use defmt;
 pub use utrace_macros::{trace, trace_here};
 
 pub struct Tracer {

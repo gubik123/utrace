@@ -1,6 +1,5 @@
 // Simplistic comma-free self-synchronizing encoder/decoder
 use core::mem::size_of;
-use std::collections::VecDeque;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct TracePoint {
@@ -34,16 +33,16 @@ where
     writer(&outbuf[..packet_len]);
 }
 
-#[cfg(not(no_std))]
+#[cfg(feature = "std")]
 pub struct Decoder {
     queue: std::collections::VecDeque<u8>,
 }
 
-#[cfg(not(no_std))]
+#[cfg(feature = "std")]
 impl Decoder {
     pub fn new() -> Self {
         Decoder {
-            queue: VecDeque::new(),
+            queue: std::collections::VecDeque::new(),
         }
     }
 
@@ -73,6 +72,7 @@ impl Decoder {
 #[cfg(test)]
 mod test {
     use proptest::prelude::*;
+    use std::collections::VecDeque;
     use std::iter::zip;
 
     use super::*;

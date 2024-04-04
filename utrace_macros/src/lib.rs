@@ -100,6 +100,36 @@ pub fn trace(
     expanded.into()
 }
 
+#[proc_macro_attribute]
+pub fn default_transport(
+    _attr: proc_macro::TokenStream,
+    input: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    let body: syn::ItemFn =
+        syn::parse(input).expect("#[utrace::default_transport] should be applied to a function");
+
+    quote! {
+        #[export_name = "__utrace_default_transport_write"]
+        #body
+    }
+    .into()
+}
+
+#[proc_macro_attribute]
+pub fn timestamp(
+    _attr: proc_macro::TokenStream,
+    input: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    let body: syn::ItemFn =
+        syn::parse(input).expect("#[utrace::timestamp] should be applied to a function");
+
+    quote! {
+        #[export_name = "__utrace_timestamp_function"]
+        #body
+    }
+    .into()
+}
+
 #[derive(Debug, FromMeta)]
 struct TraceAttrs {
     #[darling(default)]

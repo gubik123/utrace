@@ -10,3 +10,7 @@ utrace_macros = { path = "../utrace_macros" }
 
 [dev-dependencies]
 proptest = "1.4.0"
+
+[features]
+default = ["std"]
+std = []
