@@ -32,7 +32,7 @@ pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     if let Some(trace_each_nth_count) = args.trace_each_nth_count {
         trace_body_gen = quote!(
 
-            let tracer = rtt_trace::Tracer::new(
+            let tracer = utrace::Tracer::new(
                 Some({
                     #[link_section = "_trace_point"]
                     #[export_name=concat!("enter_", module_path!(), "_", line!(), "_", column!(), "_", #uniqe_name_entry)]
@@ -86,10 +86,11 @@ pub fn trace(
     let attr: TokenStream = attr.into();
 
     let head_ident = &ast.sig;
+    let fn_vis = &ast.vis;
     let body = &ast.block;
 
     let expanded = quote! {
-        #head_ident {
+        #fn_vis #head_ident {
         let mut body_future = core::pin::pin!(async move #body);
             core::future::poll_fn(|cx| {
             utrace::trace_here!(#attr);

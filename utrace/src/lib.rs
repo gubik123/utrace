@@ -2,6 +2,7 @@
 
 pub mod encoding;
 mod globals;
+pub use utrace_macros::{trace, trace_here};
 
 #[cfg(not(feature = "std"))]
 pub mod tracer;
