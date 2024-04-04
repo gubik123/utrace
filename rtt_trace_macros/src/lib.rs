@@ -35,13 +35,13 @@ pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             let tracer = rtt_trace::Tracer::new(
                 Some({
                     #[link_section = "_trace_point"]
-                    #[export_name=concat!("enter_", module_path!(), "_", line!(), ":", column!(), ":", #uniqe_name_entry)]
+                    #[export_name=concat!("enter_", module_path!(), "_", line!(), "_", column!(), "_", #uniqe_name_entry)]
                     static ENTRY_ID_HOLDER: u8 = 0;
                     &ENTRY_ID_HOLDER as *const u8 as u8
                 }),
                 Some({
                     #[link_section = "_trace_point"]
-                    #[export_name=concat!("exit_", module_path!(), "_", line!(), ":", column!(), ":",  #uniqe_name_exit)]
+                    #[export_name=concat!("exit_", module_path!(), "_", line!(), "_", column!(), "_",  #uniqe_name_exit)]
                     static END_ID_HOLDER: u8 = 0;
                     &END_ID_HOLDER as *const u8 as u8
                 }),
@@ -59,13 +59,13 @@ pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             let tracer = rtt_trace::Tracer::new(
                 Some({
                     #[link_section = "_trace_point"]
-                    #[export_name=concat!("enter_", module_path!(), "_", line!(), ":", column!(), ":", #uniqe_name_entry)]
+                    #[export_name=concat!("enter_", module_path!(), "_", line!(), "_", column!(), "_", #uniqe_name_entry)]
                     static ENTRY_ID_HOLDER: u8 = 0;
                     &ENTRY_ID_HOLDER as *const u8 as u8
                 }),
                 Some({
                     #[link_section = "_trace_point"]
-                    #[export_name=concat!("exit_", module_path!(), "_", line!(), ":", column!(), ":",  #uniqe_name_exit)]
+                    #[export_name=concat!("exit_", module_path!(), "_", line!(), "_", column!(), "_",  #uniqe_name_exit)]
                     static END_ID_HOLDER: u8 = 0;
                     &END_ID_HOLDER as *const u8 as u8
                 }),

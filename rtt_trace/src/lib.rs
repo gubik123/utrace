@@ -18,7 +18,7 @@ impl Tracer {
         match skip_config {
             SkipConfig::NoSkip => {
                 if let Some(id) = entry_id {
-                    defmt::info!("Entering with ID = {}", id);
+                    defmt::info!("Entering: {}", id);
                 }
                 Some(Tracer { exit_id })
             }
@@ -26,7 +26,7 @@ impl Tracer {
                 *counter += 1;
                 if *counter >= limit {
                     if let Some(id) = entry_id {
-                        defmt::info!("Skipping, but entering with ID = {}", id);
+                        defmt::info!("Entering: {}", id);
                     }
                     *counter = 0;
                     Some(Tracer { exit_id })
@@ -41,7 +41,7 @@ impl Tracer {
 impl Drop for Tracer {
     fn drop(&mut self) {
         if let Some(id) = self.exit_id {
-            defmt::info!("Exiting with ID = {}", id);
+            defmt::info!("Exiting: {}", id);
         }
     }
 }

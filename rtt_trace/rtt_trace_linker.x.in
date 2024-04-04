@@ -1,8 +1,8 @@
 SECTIONS
 {
-    ._trace_point 1 (INFO): 
+    ._trace_point 0 (INFO): 
     {
-        . = 1;
+        . = 0;
         *(_trace_point*);
 
         KEEP(*(_trace_point*));
