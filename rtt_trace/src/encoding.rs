@@ -122,6 +122,35 @@ mod test {
 
             assert_eq!(decoded, pkts);
         }
+
+        #[test]
+        fn multi_enc_dec_with_resync(pkts in prop::collection::vec(arb_tracepoint(), 1..1000),
+                                    junk in prop::collection::vec(any::<u8>(), 1..1000)) {
+
+            let mut stream = junk;
+
+            encode(TracePoint {id: 0, delta_t: 0}, |b| stream.extend_from_slice(b));
+            for pkt in pkts.iter() {
+                encode(*pkt, |b| stream.extend_from_slice(b));
+            }
+
+            let mut dec = Decoder::new();
+
+            let mut decoded = VecDeque::new();
+
+            for b in stream {
+                let d = dec.push_byte(b);
+                if let Some(d) = d {
+                    decoded.push_back(d);
+                }
+            }
+
+            while decoded.len() > pkts.len() {
+                decoded.pop_front();
+            }
+
+            assert_eq!(decoded, pkts);
+        }
     }
 
     #[test]
@@ -181,34 +210,37 @@ mod verification {
     use super::*;
 
     #[kani::proof]
-    #[kani::unwind(4)]
-    pub fn check_something() {
+    #[kani::unwind(6)]
+    pub fn check_encoding_length() {
         let mut serialized = Vec::new();
         let tp = TracePoint {
             id: kani::any(),
             delta_t: kani::any(),
         };
-        kani::assume(tp.delta_t < (1 << 14));
+        //kani::assume(tp.delta_t < (1 << 14));
 
         encode(tp, |b| serialized.extend_from_slice(b));
 
-        assert!(serialized.len() < 4);
+        let mut req_len = 3;
+        let out_len = serialized.len();
 
-        let mut dec = Decoder::new();
+        kani::cover!(out_len == 3);
+        kani::cover!(out_len == 4);
+        kani::cover!(out_len == 5);
+        kani::cover!(out_len == 6);
 
-        let mut result: Option<TracePoint> = None;
-
-        for i in 0..4 {
-            result = dec.push_byte(serialized[i]);
+        if tp.delta_t >= 1 << 14 {
+            req_len += 1;
         }
 
-        // for b in serialized {
-        // let r = dec.push_byte(b);
-        // if r.is_some() {
-        //     result = r;
-        // }
-        // }
+        if tp.delta_t >= 1 << 21 {
+            req_len += 1;
+        }
 
-        // assert!(result.is_some());
+        if tp.delta_t >= 1 << 28 {
+            req_len += 1;
+        }
+
+        assert_eq!(req_len, out_len);
     }
 }

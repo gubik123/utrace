@@ -1,2 +1,2 @@
 /target
-**/proptest-regressions
+**/mutants*
