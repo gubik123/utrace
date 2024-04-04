@@ -1,6 +1,6 @@
 #![no_std]
 use defmt;
-pub use rtt_trace_macros::{trace, trace_here};
+pub use utrace_macros::{trace, trace_here};
 
 pub struct Tracer {
     exit_id: Option<u8>,

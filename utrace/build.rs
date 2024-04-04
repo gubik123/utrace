@@ -2,11 +2,11 @@ use std::{env, error::Error, fs, path::PathBuf};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Read the linker script
-    let linker_script = fs::read_to_string("rtt_trace_linker.x.in")?;
+    let linker_script = fs::read_to_string("utrace_linker.x.in")?;
 
     // Put the linker script somewhere the linker can find it
     let out = &PathBuf::from(env::var("OUT_DIR")?);
-    fs::write(out.join("rtt_trace_linker.x"), linker_script)?;
+    fs::write(out.join("utrace_linker.x"), linker_script)?;
 
     println!("cargo:rustc-link-search={}", out.display());
     let target = env::var("TARGET")?;

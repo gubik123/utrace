@@ -27,7 +27,7 @@ pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
         static END_ID_HOLDER: u8 = 0;
         let exit_id = &END_ID_HOLDER as *const u8 as u8;
 
-        let tracer = rtt_trace::Tracer::new(Some(entry_id), Some(exit_id));
+        let tracer = utrace::Tracer::new(Some(entry_id), Some(exit_id));
 
     );
 
@@ -47,7 +47,7 @@ pub fn trace(
         #head_ident {
         let mut body_future = core::pin::pin!(async move #body);
             core::future::poll_fn(|cx| {
-            rtt_trace::trace_here!();
+            utrace::trace_here!();
             body_future.as_mut().poll(cx)}).await
         }
     };

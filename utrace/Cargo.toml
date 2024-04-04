@@ -1,0 +1,12 @@
+[package]
+name = "utrace"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+defmt = "0.3.6"
+utrace_macros = { path = "../utrace_macros" }
+
+[dev-dependencies]
+proptest = "1.4.0"
