@@ -8,14 +8,17 @@ pub(crate) fn default_write(buf: &[u8]) {
     }
 }
 
-pub(crate) fn timestamp_delta() -> u32 {
+pub(crate) fn default_timestamp_delta() -> u32 {
     extern "Rust" {
         fn __utrace_timestamp_function() -> u64;
     }
 
-    static LAST_TIMESTAMP: u64 = 0;
+    static mut LAST_TIMESTAMP: u64 = 0;
 
     let current_timestamp = unsafe { __utrace_timestamp_function() };
 
-    0
+    let delta = (current_timestamp - unsafe { LAST_TIMESTAMP }) as u32;
+    unsafe { LAST_TIMESTAMP = current_timestamp };
+
+    delta
 }

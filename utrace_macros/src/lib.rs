@@ -45,7 +45,7 @@ pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                     static END_ID_HOLDER: u8 = 0;
                     &END_ID_HOLDER as *const u8 as u8
                 }),
-                SkipConfig::Skip {
+                utrace::tracer::SkipConfig::Skip {
                     counter: {  static mut TRACE_COUNTER: u32 = 0;
                                 unsafe {&mut TRACE_COUNTER}},
                     limit: #trace_each_nth_count,
@@ -69,7 +69,7 @@ pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
                     static END_ID_HOLDER: u8 = 0;
                     &END_ID_HOLDER as *const u8 as u8
                 }),
-                SkipConfig::NoSkip,
+                utrace::tracer::SkipConfig::NoSkip,
             );
         )
     }
@@ -93,6 +93,7 @@ pub fn trace(
         let mut body_future = core::pin::pin!(async move #body);
             core::future::poll_fn(|cx| {
             utrace::trace_here!(#attr);
+            use core::future::Future;
             body_future.as_mut().poll(cx)}).await
         }
     };

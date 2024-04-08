@@ -1,4 +1,5 @@
-pub use utrace_macros::{trace, trace_here};
+use crate::encoding::encode;
+use crate::encoding::TracePoint;
 
 pub struct Tracer {
     exit_id: Option<u8>,
@@ -17,7 +18,7 @@ impl Tracer {
         match skip_config {
             SkipConfig::NoSkip => {
                 if let Some(id) = entry_id {
-                    defmt::info!("Entering: {}", id);
+                    Self::emit(id);
                 }
                 Some(Tracer { exit_id })
             }
@@ -25,7 +26,7 @@ impl Tracer {
                 *counter += 1;
                 if *counter >= limit {
                     if let Some(id) = entry_id {
-                        defmt::info!("Entering: {}", id);
+                        Self::emit(id);
                     }
                     *counter = 0;
                     Some(Tracer { exit_id })
@@ -35,12 +36,25 @@ impl Tracer {
             }
         }
     }
+
+    fn emit(id: u8) {
+        critical_section::with(|_| {
+            let delta = crate::globals::default_timestamp_delta();
+            encode(
+                TracePoint {
+                    delta_t: delta,
+                    id: id,
+                },
+                crate::globals::default_write,
+            );
+        });
+    }
 }
 
 impl Drop for Tracer {
     fn drop(&mut self) {
         if let Some(id) = self.exit_id {
-            defmt::info!("Exiting: {}", id);
+            Self::emit(id);
         }
     }
 }

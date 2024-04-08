@@ -1,4 +1,4 @@
 [workspace]
-members = ["utrace_macros", "utrace"]
+members = ["utrace_macros", "utrace", "transports/utrace_rtt", "rtic_test"]
 
 resolver = "2"
