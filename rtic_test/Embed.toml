@@ -1,0 +1,27 @@
+[default.probe]
+protocol = "Swd"
+
+[default.flashing]
+enabled = true
+halt_afterwards = false
+restore_unwritten_bytes = false
+do_chip_erase = false
+
+[default.reset]
+enabled = true
+halt_afterwards = false
+
+[default.general]
+chip = "STM32U585VITx"
+
+[default.rtt]
+enabled = true 
+timeout = 3000
+show_timestamps = false
+channels = [
+    { up = 0, name = "Trace", up_mode = "NoBlockSkip", format = "String", socket = "127.0.0.1:12345" },
+  ]
+
+[default.gdb]
+enabled = false
+gdb_connection_string = "127.0.0.1:7201"

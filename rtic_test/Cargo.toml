@@ -1,0 +1,24 @@
+[package]
+name = "rtic_test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
+cortex-m-semihosting = "0.5.0"
+panic-semihosting = "0.6.0"
+rtic = { version = "2.1.1", features = ["thumbv8main-backend", "rtic-monotonics"] }
+embassy-stm32 = { version = "0.1.0", features = [
+    "unstable-pac",
+    "stm32u585vi",
+    "memory-x"] }
+
+rtic-monotonics = { git = "https://github.com/DmitriyNE/rtic.git", features = [
+    "stm32_tim15",
+    "stm32u585vi",
+    "stm32-metapac",
+    "embedded-hal-async",
+] }
+
+utrace = { path = "../utrace", default-features = false }
+utrace_rtt = { path = "../transports/utrace_rtt" }

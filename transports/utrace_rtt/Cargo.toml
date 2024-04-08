@@ -1,0 +1,9 @@
+[package]
+name = "utrace_rtt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+utrace_macros = { path = "../../utrace_macros" }
+rtt-target = "0.5.0"
+
