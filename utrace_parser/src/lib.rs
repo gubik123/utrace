@@ -1,6 +1,8 @@
 use object::{Object, ObjectSection, ObjectSymbol};
 use std::{borrow, fs};
 
+pub mod trace_point;
+
 #[derive(Debug)]
 struct TraceData {
     id: u64,
@@ -10,7 +12,7 @@ struct TraceData {
     line: Option<u64>,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn test() -> Result<(), Box<dyn std::error::Error>> {
     let path = "../hello_world/target/thumbv8m.main-none-eabihf/debug/nemo_firmware";
     let file = fs::File::open(&path).unwrap();
     let mmap = unsafe { memmap2::Mmap::map(&file).unwrap() };

@@ -1,10 +1,10 @@
 SECTIONS
 {
-    ._trace_point 0 (INFO): 
+    .utrace_trace_points 1 (INFO): 
     {
-        . = 0;
-        *(_trace_point*);
+        . = 1;
+        *(utrace_trace_points*);
 
-        KEEP(*(_trace_point*));
+        KEEP(*(utrace_trace_points*));
     }
 }   

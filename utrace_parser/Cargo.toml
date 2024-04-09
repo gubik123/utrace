@@ -3,9 +3,20 @@ name = "utrace_parser"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "utrace-capture"
 
 [dependencies]
-gimli = { version = "0.28.1", features = ["read", "std", "read-all", "fallible-iterator", "endian-reader", "read-core"] } 
+anyhow = "1.0.81"
+gimli = { version = "0.28.1", features = [
+    "read",
+    "std",
+    "read-all",
+    "fallible-iterator",
+    "endian-reader",
+    "read-core",
+] }
 memmap2 = "0.9.4"
-object = "0.27"
+object = "0.34.0"
+serde = { version = "1.0.197", features = ["serde_derive"] }
+serde_json = "1.0.115"
