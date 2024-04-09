@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 
+pub type TracePointId = u8;
+
 /// Kind of enter/exit point pairs
 /// - AsyncInstantiation points are emited on enrty and/or exit from instrumentated async fns,
 ///   hence they cover the lifecycle of async fn from initial call till Future resolution
@@ -15,7 +17,7 @@ pub enum TracePointPairKind {
 }
 
 /// Kind of specific point trace instrumentation point
-#[derive(PartialEq, Eq, Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Hash, Serialize, Deserialize)]
 pub enum TracePointKind {
     SyncEnter,
     SyncExit,
@@ -27,7 +29,7 @@ pub enum TracePointKind {
     GenericExit,
 }
 
-#[derive(PartialEq, Eq, Debug, Clone, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Clone, Hash, Serialize, Deserialize)]
 pub struct TracePointInfo {
     pub kind: TracePointKind,
     pub name: Option<String>,
