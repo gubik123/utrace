@@ -1,4 +1,3 @@
-use anyhow::{Context, Result};
 use darling::FromMeta;
 use proc_macro::Span;
 use proc_macro2::TokenStream;
@@ -36,7 +35,7 @@ fn trace_point_definition(
     }}
 }
 
-fn tracer_instantiation(
+pub fn tracer_instantiation(
     tracer_kind: TracePointPairKind,
     name: Option<String>,
     comment: Option<String>,
@@ -93,7 +92,7 @@ pub fn transform_async_fn(
             TracePointPairKind::AsyncPoll,
             name.clone(),
             attrs.comment.clone(),
-            attrs.skip,
+            attrs.skip_poll,
             !attrs.noenter_poll,
             !attrs.noexit_poll,
         );
@@ -138,7 +137,7 @@ pub fn transform_sync_fn(
 
     if trace_fn {
         let inst_tracer = tracer_instantiation(
-            TracePointPairKind::AsyncInstantiation,
+            TracePointPairKind::SyncCall,
             name,
             attrs.comment,
             attrs.skip,

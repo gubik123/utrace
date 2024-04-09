@@ -7,4 +7,5 @@ SECTIONS
 
         KEEP(*(utrace_trace_points*));
     }
+    ASSERT((SIZEOF(.utrace_trace_points) <= 256), "utrace link error: only 255 trace points are supported")
 }   

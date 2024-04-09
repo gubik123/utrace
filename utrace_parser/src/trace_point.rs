@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 /// - Generic points are emited when instrumentation is inserted by trace_here! macro
 #[derive(PartialEq, Eq, Debug, Clone, Copy)]
 pub enum TracePointPairKind {
+    SyncCall,
     AsyncInstantiation,
     AsyncPoll,
     Generic,
@@ -16,6 +17,8 @@ pub enum TracePointPairKind {
 /// Kind of specific point trace instrumentation point
 #[derive(PartialEq, Eq, Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum TracePointKind {
+    SyncEnter,
+    SyncExit,
     AsyncEnter,
     AsyncExit,
     AsyncPollEnter,
@@ -36,6 +39,7 @@ pub struct TracePointInfo {
 impl Into<TracePointPairKind> for TracePointKind {
     fn into(self) -> TracePointPairKind {
         match self {
+            TracePointKind::SyncEnter | TracePointKind::SyncExit => TracePointPairKind::SyncCall,
             TracePointKind::AsyncEnter | TracePointKind::AsyncExit => {
                 TracePointPairKind::AsyncInstantiation
             }
@@ -52,6 +56,7 @@ impl Into<TracePointPairKind> for TracePointKind {
 impl TracePointPairKind {
     pub fn enter_point(&self) -> TracePointKind {
         match self {
+            TracePointPairKind::SyncCall => TracePointKind::SyncEnter,
             TracePointPairKind::AsyncInstantiation => TracePointKind::AsyncEnter,
             TracePointPairKind::AsyncPoll => TracePointKind::AsyncPollEnter,
             TracePointPairKind::Generic => TracePointKind::GenericEnter,
@@ -60,9 +65,10 @@ impl TracePointPairKind {
 
     pub fn exit_point(&self) -> TracePointKind {
         match self {
+            TracePointPairKind::SyncCall => TracePointKind::SyncExit,
             TracePointPairKind::AsyncInstantiation => TracePointKind::AsyncExit,
             TracePointPairKind::AsyncPoll => TracePointKind::AsyncPollExit,
-            TracePointPairKind::Generic => TracePointKind::GenericEnter,
+            TracePointPairKind::Generic => TracePointKind::GenericExit,
         }
     }
 }

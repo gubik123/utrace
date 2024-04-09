@@ -1255,7 +1255,6 @@ dependencies = [
 name = "utrace_macros"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "darling",
  "proc-macro2",
  "quote",

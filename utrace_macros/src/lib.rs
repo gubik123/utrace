@@ -1,85 +1,24 @@
-use anyhow::{Context, Result};
-use darling;
 use darling::ast::NestedMeta;
-use darling::{Error, FromMeta};
-use proc_macro2::{Span, TokenStream};
+use darling::FromMeta;
 use quote::quote;
-use syn;
 
 mod codegen;
 
 #[proc_macro]
 pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    // let attr_args = match NestedMeta::parse_meta_list(input.into()) {
-    //     Ok(v) => v,
-    //     Err(e) => {
-    //         return proc_macro::TokenStream::from(Error::from(e).write_errors());
-    //     }
-    // };
+    let attrs = NestedMeta::parse_meta_list(input.into()).expect("Malformed trace_here! arguments");
+    let attrs = FreestandingMeta::from_list(&attrs).expect("Unable to parse trace_here! arguments");
 
-    // let args = match TraceAttrs::from_list(&attr_args) {
-    //     Ok(v) => v,
-    //     Err(e) => {
-    //         return proc_macro::TokenStream::from(e.write_errors());
-    //     }
-    // };
+    let ret = codegen::tracer_instantiation(
+        utrace_parser::trace_point::TracePointPairKind::Generic,
+        None,
+        attrs.comment,
+        attrs.skip,
+        !attrs.noenter,
+        !attrs.noexit,
+    );
 
-    // let entry_hash = hash(&format!("Entry_{:?}", Span::call_site()));
-    // let exit_hash = hash(&format!("Exit_{:?}", Span::call_site()));
-
-    // let uniqe_name_entry = &format!("{}", &entry_hash);
-    // let uniqe_name_exit = &format!("{}", &exit_hash);
-
-    // let trace_body_gen;
-
-    // if let Some(trace_each_nth_count) = args.trace_each_nth_count {
-    //     trace_body_gen = quote!(
-
-    //         let tracer = utrace::Tracer::new(
-    //             Some({
-    //                 #[link_section = "_trace_point"]
-    //                 #[export_name=concat!("enter_", module_path!(), "_", line!(), "_", column!(), "_", #uniqe_name_entry)]
-    //                 static ENTRY_ID_HOLDER: u8 = 0;
-    //                 &ENTRY_ID_HOLDER as *const u8 as u8
-    //             }),
-    //             Some({
-    //                 #[link_section = "_trace_point"]
-    //                 #[export_name=concat!("exit_", module_path!(), "_", line!(), "_", column!(), "_",  #uniqe_name_exit)]
-    //                 static END_ID_HOLDER: u8 = 0;
-    //                 &END_ID_HOLDER as *const u8 as u8
-    //             }),
-    //             utrace::tracer::SkipConfig::Skip {
-    //                 counter: {  static mut TRACE_COUNTER: u32 = 0;
-    //                             unsafe {&mut TRACE_COUNTER}},
-    //                 limit: #trace_each_nth_count,
-    //             },
-    //         );
-    //     )
-    // } else {
-    //     trace_body_gen = quote!(
-    //         static mut TRACE_COUNTER: u32 = 0;
-
-    //         let tracer = utrace::Tracer::new(
-    //             Some({
-    //                 #[link_section = "_trace_point"]
-    //                 #[export_name=concat!("enter_", module_path!(), "_", line!(), "_", column!(), "_", #uniqe_name_entry)]
-    //                 static ENTRY_ID_HOLDER: u8 = 0;
-    //                 &ENTRY_ID_HOLDER as *const u8 as u8
-    //             }),
-    //             Some({
-    //                 #[link_section = "_trace_point"]
-    //                 #[export_name=concat!("exit_", module_path!(), "_", line!(), "_", column!(), "_",  #uniqe_name_exit)]
-    //                 static END_ID_HOLDER: u8 = 0;
-    //                 &END_ID_HOLDER as *const u8 as u8
-    //             }),
-    //             utrace::tracer::SkipConfig::NoSkip,
-    //         );
-    //     )
-    // }
-
-    // trace_body_gen.into()
-
-    quote! {}.into()
+    quote! {#ret;}.into()
 }
 
 #[proc_macro_attribute]
@@ -96,7 +35,14 @@ pub fn trace(
     let head_ident = &ast.sig;
     let fn_vis = &ast.vis;
     let body = &ast.block;
-    let body = codegen::transform_async_fn(Some(ast.sig.ident.to_string()), attrs, quote! {#body});
+    let body = if ast.sig.asyncness.is_some() {
+        codegen::transform_async_fn(Some(ast.sig.ident.to_string()), attrs, quote! {#body})
+    } else {
+        if attrs.skip_poll.is_some() || attrs.noenter_poll || attrs.noexit_poll {
+            panic!("Attributes skip_poll, noenter_poll and noexit_poll cannot be applied to non-async functions")
+        }
+        codegen::transform_sync_fn(Some(ast.sig.ident.to_string()), attrs, quote! {#body})
+    };
 
     let expanded = quote! {
         #fn_vis #head_ident {
@@ -151,12 +97,18 @@ struct FnAttributesMeta {
     noexit_poll: bool,
     #[darling(default)]
     skip: Option<u32>,
+    #[darling(default)]
+    skip_poll: Option<u32>,
 }
 
 #[derive(Debug, FromMeta)]
 struct FreestandingMeta {
+    #[darling(default)]
     comment: Option<String>,
+    #[darling(default)]
     noenter: bool,
+    #[darling(default)]
     noexit: bool,
+    #[darling(default)]
     skip: Option<u32>,
 }
