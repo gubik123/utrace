@@ -1,7 +1,10 @@
+cargo-features = ["per-package-target"]
+
 [package]
 name = "rtic_test"
 version = "0.1.0"
 edition = "2021"
+forced-target = "thumbv8m.main-none-eabihf"
 
 [dependencies]
 cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }

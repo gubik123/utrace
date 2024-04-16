@@ -38,9 +38,17 @@ pub struct TracePointInfo {
     pub id: u64,
 }
 
-impl Into<TracePointPairKind> for TracePointKind {
-    fn into(self) -> TracePointPairKind {
-        match self {
+#[derive(Debug, Hash)]
+pub struct TracePointDataWithLocation {
+    pub info: TracePointInfo,
+    pub path: Option<String>,
+    pub file_name: Option<String>,
+    pub line: Option<u64>,
+}
+
+impl From<TracePointKind> for TracePointPairKind {
+    fn from(v: TracePointKind) -> TracePointPairKind {
+        match v {
             TracePointKind::SyncEnter | TracePointKind::SyncExit => TracePointPairKind::SyncCall,
             TracePointKind::AsyncEnter | TracePointKind::AsyncExit => {
                 TracePointPairKind::AsyncInstantiation

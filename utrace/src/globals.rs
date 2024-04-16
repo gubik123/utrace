@@ -1,3 +1,5 @@
+// Spurious (?) dead_code warning
+#[allow(dead_code)]
 pub(crate) fn default_write(buf: &[u8]) {
     extern "Rust" {
         fn __utrace_default_transport_write(buf: &[u8]);
@@ -8,6 +10,7 @@ pub(crate) fn default_write(buf: &[u8]) {
     }
 }
 
+#[allow(dead_code)]
 pub(crate) fn default_timestamp_delta() -> u32 {
     extern "Rust" {
         fn __utrace_timestamp_function() -> u64;

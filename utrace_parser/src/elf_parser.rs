@@ -1,21 +1,13 @@
-use crate::trace_point::{TracePointId, TracePointInfo};
+use crate::trace_point::{TracePointDataWithLocation, TracePointId};
 use anyhow::{bail, Context, Result};
 use object::{Object, ObjectSection, ObjectSymbol};
-use std::{borrow, collections::HashMap, fmt::Display, fs, io::Read, path::Path};
-
-#[derive(Debug, Hash)]
-pub struct TracePointDataWithLocation {
-    info: TracePointInfo,
-    path: Option<String>,
-    file_name: Option<String>,
-    line: Option<u64>,
-}
+use std::{borrow, collections::HashMap, io::Read, path::Path};
 
 pub fn parse<T>(elf_file: T) -> Result<HashMap<TracePointId, TracePointDataWithLocation>>
 where
     T: AsRef<Path> + std::fmt::Debug,
 {
-    let mut file = fs::File::open(elf_file.as_ref())
+    let mut file = std::fs::File::open(elf_file.as_ref())
         .with_context(|| format!("Unable to open file {:?}", elf_file))?;
 
     let mut file_data = Vec::new();
@@ -71,7 +63,7 @@ where
     let borrow_section: &dyn for<'a> Fn(
         &'a borrow::Cow<[u8]>,
     ) -> gimli::EndianSlice<'a, gimli::RunTimeEndian> =
-        &|section| gimli::EndianSlice::new(&*section, endian);
+        &|section| gimli::EndianSlice::new(section, endian);
 
     let dwarf = dwarf_cow.borrow(&borrow_section);
 
