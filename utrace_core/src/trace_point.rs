@@ -46,6 +46,25 @@ pub struct TracePointDataWithLocation {
     pub line: Option<u64>,
 }
 
+impl TracePointKind {
+    pub fn is_enter(&self) -> bool {
+        match self {
+            TracePointKind::SyncEnter
+            | TracePointKind::AsyncEnter
+            | TracePointKind::AsyncPollEnter
+            | TracePointKind::GenericEnter => true,
+            TracePointKind::SyncExit
+            | TracePointKind::AsyncExit
+            | TracePointKind::AsyncPollExit
+            | TracePointKind::GenericExit => false,
+        }
+    }
+
+    pub fn is_exit(&self) -> bool {
+        !self.is_enter()
+    }
+}
+
 impl From<TracePointKind> for TracePointPairKind {
     fn from(v: TracePointKind) -> TracePointPairKind {
         match v {

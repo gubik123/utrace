@@ -1,4 +1,11 @@
 [workspace]
-members = ["utrace_macros", "utrace", "transports/utrace_rtt", "rtic_test", "utrace_parser", "utrace_core"]
+members = [
+    "utrace_macros",
+    "utrace",
+    "transports/utrace_rtt",
+    # "rtic_test",
+    "utrace_parser",
+    "utrace_core",
+]
 
 resolver = "2"

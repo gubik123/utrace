@@ -1,2 +1,2 @@
 pub mod elf_parser;
-pub mod stream_decoder;
+pub mod stream_parser;
