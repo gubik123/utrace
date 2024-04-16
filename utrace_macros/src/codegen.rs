@@ -2,7 +2,7 @@ use darling::FromMeta;
 use proc_macro::Span;
 use proc_macro2::TokenStream;
 use quote::quote;
-use utrace_parser::trace_point::{TracePointInfo, TracePointKind, TracePointPairKind};
+use utrace_core::trace_point::{TracePointInfo, TracePointKind, TracePointPairKind};
 
 fn location_hash() -> u64 {
     let loc_str: String = format!("{:?}", Span::call_site());

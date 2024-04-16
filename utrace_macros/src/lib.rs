@@ -10,7 +10,7 @@ pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let attrs = FreestandingMeta::from_list(&attrs).expect("Unable to parse trace_here! arguments");
 
     let ret = codegen::tracer_instantiation(
-        utrace_parser::trace_point::TracePointPairKind::Generic,
+        utrace_core::trace_point::TracePointPairKind::Generic,
         None,
         attrs.comment,
         attrs.skip,

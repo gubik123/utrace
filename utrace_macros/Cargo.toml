@@ -11,4 +11,4 @@ proc-macro2 = { version = "1.0.79", features = ["span-locations"] }
 quote = "1.0.35"
 syn = { version = "2.0.55", features = ["full"] }
 darling = "0.20.8"
-utrace_parser = { path = "../utrace_parser" }
+utrace_core = { path = "../utrace_core" }

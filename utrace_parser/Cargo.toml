@@ -21,3 +21,5 @@ memmap2 = "0.9.4"
 object = "0.34.0"
 serde = { version = "1.0.197", features = ["serde_derive"] }
 serde_json = "1.0.115"
+utrace = { path = "../utrace" }
+utrace_core = { path = "../utrace_core" }

@@ -1,7 +1,7 @@
-use crate::trace_point::{TracePointDataWithLocation, TracePointId};
 use anyhow::{bail, Context, Result};
 use object::{Object, ObjectSection, ObjectSymbol};
 use std::{borrow, collections::HashMap, io::Read, path::Path};
+use utrace_core::trace_point::{TracePointDataWithLocation, TracePointId};
 
 pub fn parse<T>(elf_file: T) -> Result<HashMap<TracePointId, TracePointDataWithLocation>>
 where
@@ -18,7 +18,7 @@ where
         object::File::<&[u8]>::parse(file_data.as_ref()).context("Unable to parse elf file")?;
 
     let trace_points_section = object
-        .section_by_name(crate::TRACE_POINT_SECTION_NAME)
+        .section_by_name(utrace_core::TRACE_POINT_SECTION_NAME)
         .context("Unable to find utrace info in the provided elf file")?;
     let trace_points_section_index = trace_points_section.index();
 
@@ -27,7 +27,7 @@ where
     for symbol in object.symbols() {
         if symbol.section_index() == Some(trace_points_section_index) {
             let symbol_addr = symbol.address();
-            if symbol_addr as usize > crate::MAX_TRACE_POINTS {
+            if symbol_addr as usize > utrace_core::MAX_TRACE_POINTS {
                 bail!("Provided elf file contains too many trace points (check linker script)");
             }
             trace_point_list.insert(
