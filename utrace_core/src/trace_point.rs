@@ -126,3 +126,20 @@ fn escape(inp: &str) -> String {
 fn unescape(inp: &str) -> String {
     inp.to_owned()
 }
+
+use std::fmt;
+
+impl fmt::Display for TracePointKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TracePointKind::SyncEnter => write!(f, "SyncEnter"),
+            TracePointKind::SyncExit => write!(f, "SyncExit"),
+            TracePointKind::AsyncEnter => write!(f, "AsyncEnter"),
+            TracePointKind::AsyncExit => write!(f, "AsyncExit"),
+            TracePointKind::AsyncPollEnter => write!(f, "AsyncPollEnter"),
+            TracePointKind::AsyncPollExit => write!(f, "AsyncPollExit"),
+            TracePointKind::GenericEnter => write!(f, "GenericEnter"),
+            TracePointKind::GenericExit => write!(f, "GenericExit"),
+        }
+    }
+}

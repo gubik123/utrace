@@ -15,8 +15,7 @@ fn utrace_timestamp_fn() -> u64 {
 }
 
 #[utrace::trace]
-fn idle_fn() {
-}
+fn idle_fn() {}
 
 #[app(device = pac, peripherals = false, dispatchers = [SAI1, SAI2])]
 mod app {
@@ -62,7 +61,6 @@ mod app {
         };
         let tracing_rtt_channel: rtt_target::UpChannel = channels.up.0;
 
-
         utrace_rtt::init(tracing_rtt_channel);
 
         let tim3_input_frequency =
@@ -78,12 +76,12 @@ mod app {
         (Shared {}, Local {})
     }
 
-    #[utrace::trace(noenter_fn, noexit_poll, skip = 10)]
+    #[utrace::trace()]
     async fn task1_sub() {
         Tim15::delay(<Tim15 as Monotonic>::Duration::millis(1)).await;
     }
 
-    #[utrace::trace(noenter_poll)]
+    #[utrace::trace(noexit_poll)]
     async fn task2_sub() {
         Tim15::delay(<Tim15 as Monotonic>::Duration::millis(1)).await;
     }

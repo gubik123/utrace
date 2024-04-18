@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrometracing::Store;
 use clap::Parser;
 use serde_json::StreamDeserializer;
 use std::collections::HashMap;
@@ -36,8 +37,8 @@ async fn net_reader<'a>(
         let mut sd = utrace_parser::stream_parser::StreamParser::new(id_mapping);
         let mut buf = [0u8; 16536];
 
-        while let Ok(_) = socket.read(&mut buf).await {
-            for p in sd.push_and_parse(&buf) {
+        while let Ok(size) = socket.read(&mut buf).await {
+            for p in sd.push_and_parse(&buf[..size]) {
                 chan.send(p);
             }
         }
@@ -58,8 +59,10 @@ async fn main() -> Result<()> {
 
     tracing_subscriber::fmt().init();
 
-    let tp_data = utrace_parser::elf_parser::parse(args.elf)?;
+    let tp_data: HashMap<u8, TracePointDataWithLocation> =
+        utrace_parser::elf_parser::parse(args.elf)?;
 
+    let store_trace = Store::new(&tp_data);
     async_scoped::TokioScope::scope_and_block(|s| {
         let (tptx, tprx) = channel(1024);
         s.spawn(net_reader(args.tcp.unwrap(), tptx, &tp_data));
@@ -67,9 +70,8 @@ async fn main() -> Result<()> {
         if args.stdout {
             s.spawn(tp_consumer(tprx.resubscribe()));
         }
-
         if let Some(ref ct_file) = args.chrometracing {
-            s.spawn(chrometracing::store(ct_file, tprx.resubscribe()));
+            s.spawn(store_trace.store(ct_file, tprx.resubscribe()));
         }
         drop(tprx);
     });
