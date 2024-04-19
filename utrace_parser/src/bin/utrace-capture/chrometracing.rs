@@ -31,6 +31,7 @@ pub async fn store<'a>(fname: &str, mut chan: Receiver<TimestampedTracepoint<'a>
         .open(fname)
         .await
     {
+        file.write_all("[\n".as_bytes()).await;
         while let Ok(msg) = chan.recv().await {
             if let TimestampedTracepoint::Point {
                 timestamp: ts,

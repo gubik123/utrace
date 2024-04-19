@@ -15,8 +15,7 @@ fn utrace_timestamp_fn() -> u64 {
 }
 
 #[utrace::trace]
-fn idle_fn() {
-}
+fn idle_fn() {}
 
 #[app(device = pac, peripherals = false, dispatchers = [SAI1, SAI2])]
 mod app {
@@ -51,6 +50,12 @@ mod app {
         });
         let _p = embassy_stm32::init(config);
 
+
+        let tim3_input_frequency =
+            <peripherals::TIM15 as embassy_stm32::rcc::low_level::RccPeripheral>::frequency().0;
+        let timer_token = rtic_monotonics::create_stm32_tim15_monotonic_token!();
+        Tim15::start(tim3_input_frequency, timer_token);
+
         let channels = rtt_target::rtt_init! {
             up: {
                 0: {
@@ -62,13 +67,8 @@ mod app {
         };
         let tracing_rtt_channel: rtt_target::UpChannel = channels.up.0;
 
-
         utrace_rtt::init(tracing_rtt_channel);
-
-        let tim3_input_frequency =
-            <peripherals::TIM15 as embassy_stm32::rcc::low_level::RccPeripheral>::frequency().0;
-        let timer_token = rtic_monotonics::create_stm32_tim15_monotonic_token!();
-        Tim15::start(tim3_input_frequency, timer_token);
+        utrace::init();
 
         let _ = task1::spawn();
         let _ = task2::spawn();
@@ -78,12 +78,12 @@ mod app {
         (Shared {}, Local {})
     }
 
-    #[utrace::trace(noenter_fn, noexit_poll, skip = 10)]
+    #[utrace::trace()]
     async fn task1_sub() {
         Tim15::delay(<Tim15 as Monotonic>::Duration::millis(1)).await;
     }
 
-    #[utrace::trace(noenter_poll)]
+    #[utrace::trace()]
     async fn task2_sub() {
         Tim15::delay(<Tim15 as Monotonic>::Duration::millis(1)).await;
     }
