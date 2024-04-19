@@ -4,7 +4,7 @@ use tokio::{io::AsyncWriteExt, sync::broadcast::Receiver};
 use tracing::error;
 use utrace_parser::stream_parser::TimestampedTracepoint;
 
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 enum EventType {
     #[serde(rename = "B")]
     SpanBegin,
@@ -19,7 +19,7 @@ enum DrawingTypes {
     Instant,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, PartialEq)]
 enum ArrowType {
     #[serde(rename = "s")]
     ArrowStart,
@@ -99,82 +99,76 @@ impl Store {
                 } = msg
                 {
                     let mut arrow: Option<ArrowEvent> = None;
+                    let mut arrow_type = ArrowType::ArrowStep;
                     let mut cat = "tmp".to_owned();
                     let name = tp.info.name.to_owned().unwrap();
 
                     let event_type: EventType = if tp.info.kind.is_enter() {
-                        if events.contains_key(&name) {
-                            let existing_event: &mut TraceEntry = events.get_mut(&name).unwrap();
+                        let existing_event: &mut TraceEntry;
 
+                        // If new task execution, but prev was not dropped
+                        if events.contains_key(&name)
+                            && tp.info.kind
+                                != utrace_core::trace_point::TracePointKind::AsyncPollEnter
+                        {
+                            events.remove(&name);
+                        }
+
+                        if events.contains_key(&name) {
+                            existing_event = events.get_mut(&name).unwrap();
+
+                            // If the event already exists, update the timestamp
+                            existing_event.last_timestamp = ts;
+                        } else {
+                            // New event, insert into the HashMap
+                            events.insert(
+                                name.clone(),
+                                TraceEntry {
+                                    last_timestamp: ts,
+                                    unique_id: unique_id_counter,
+                                },
+                            );
+
+                            existing_event = events.get_mut(&name).unwrap();
+                            arrow_type = ArrowType::ArrowStart;
+
+                            unique_id_counter += 1;
+                        }
+
+                        let ret_event_type: EventType;
+
+                        match tp.info.kind {
+                            utrace_core::trace_point::TracePointKind::AsyncEnter => {
+                                ret_event_type = EventType::Instant;
+                            }
+                            _ => match self.hm.get(&tp.info.id) {
+                                Some(DrawingTypes::Span) => ret_event_type = EventType::SpanBegin,
+                                _ => ret_event_type = EventType::Instant,
+                            },
+                        }
+
+                        if ret_event_type == EventType::Instant
+                            || arrow_type == ArrowType::ArrowStart
+                        {
                             arrow = Some(ArrowEvent {
                                 name: name.clone(),
                                 cat: name.clone(),
-                                ty: ArrowType::ArrowStep,
+                                ty: arrow_type,
                                 pid: 1,
                                 tid: 1,
                                 ts,
                                 id: existing_event.unique_id,
                                 bp: "e".to_owned(),
                             });
-                            // If the event already exists, update the timestamp
-                            existing_event.last_timestamp = ts;
-                        } else {
-                            // New event, insert into the HashMap
-                            match tp.info.kind {
-                                utrace_core::trace_point::TracePointKind::AsyncEnter => {
-                                    events.insert(
-                                        name.clone(),
-                                        TraceEntry {
-                                            last_timestamp: ts,
-                                            unique_id: unique_id_counter,
-                                        },
-                                    );
-                                }
-                                utrace_core::trace_point::TracePointKind::AsyncPollEnter => {
-                                    events.insert(
-                                        name.clone(),
-                                        TraceEntry {
-                                            last_timestamp: ts,
-                                            unique_id: unique_id_counter,
-                                        },
-                                    );
-                                }
-
-                                _ => (),
-                            }
-
-                            arrow = Some(ArrowEvent {
-                                name: name.clone(),
-                                cat: name.clone(),
-                                ty: ArrowType::ArrowStart,
-                                pid: 1,
-                                tid: 1,
-                                ts,
-                                id: unique_id_counter,
-                                bp: "e".to_owned(),
-                            });
-
-                            unique_id_counter += 1;
                         }
 
-                        match tp.info.kind {
-                            utrace_core::trace_point::TracePointKind::AsyncEnter => {
-                                EventType::Instant
-                            }
-                            utrace_core::trace_point::TracePointKind::AsyncExit => {
-                                EventType::Instant
-                            }
-                            _ => match self.hm.get(&tp.info.id) {
-                                Some(DrawingTypes::Span) => EventType::SpanBegin,
-                                _ => EventType::Instant,
-                            },
-                        }
+                        ret_event_type
                     } else {
                         let end_id = if events.contains_key(&name) {
                             events.get_mut(&name).unwrap().last_timestamp = ts;
                             events.get_mut(&name).unwrap().unique_id
                         } else {
-                            unique_id_counter
+                            unique_id_counter + 1
                         };
 
                         arrow = Some(ArrowEvent {
@@ -188,13 +182,9 @@ impl Store {
                             bp: "e".to_owned(),
                         });
 
-                        events.remove(&name);
-
                         match tp.info.kind {
-                            utrace_core::trace_point::TracePointKind::AsyncEnter => {
-                                EventType::Instant
-                            }
                             utrace_core::trace_point::TracePointKind::AsyncExit => {
+                                events.remove(&name);
                                 EventType::Instant
                             }
                             _ => match self.hm.get(&tp.info.id) {

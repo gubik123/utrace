@@ -76,12 +76,14 @@ mod app {
         (Shared {}, Local {})
     }
 
-    #[utrace::trace()]
+    // #[utrace::trace(noenter_fn)]
+    #[utrace::trace(noexit_fn, noenter_fn)]
     async fn task1_sub() {
         Tim15::delay(<Tim15 as Monotonic>::Duration::millis(1)).await;
     }
 
-    #[utrace::trace(noexit_poll)]
+    // #[utrace::trace(noenter_fn)]
+    #[utrace::trace(noenter_fn, noenter_poll, noexit_fn)]
     async fn task2_sub() {
         Tim15::delay(<Tim15 as Monotonic>::Duration::millis(1)).await;
     }
