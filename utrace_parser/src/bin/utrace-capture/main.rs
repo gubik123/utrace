@@ -63,6 +63,7 @@ async fn main() -> Result<()> {
         utrace_parser::elf_parser::parse(args.elf)?;
 
     let store_trace = Store::new(&tp_data);
+
     async_scoped::TokioScope::scope_and_block(|s| {
         let (tptx, tprx) = channel(1024);
         s.spawn(net_reader(args.tcp.unwrap(), tptx, &tp_data));
