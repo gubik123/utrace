@@ -3,7 +3,7 @@ members = [
     "utrace_macros",
     "utrace",
     "transports/utrace_rtt",
-    # "rtic_test",
+    "rtic_test",
     "utrace_parser",
     "utrace_core",
 ]

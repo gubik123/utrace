@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrometracing::Store;
 use clap::Parser;
 use std::collections::HashMap;
 use std::path::PathBuf;
@@ -81,7 +82,10 @@ async fn main() -> Result<()> {
 
     tracing_subscriber::fmt().init();
 
-    let tp_data = utrace_parser::elf_parser::parse(args.elf)?;
+    let tp_data: HashMap<u8, TracePointDataWithLocation> =
+        utrace_parser::elf_parser::parse(args.elf)?;
+
+    let store_trace = Store::new(&tp_data);
 
     async_scoped::TokioScope::scope_and_block(|s| {
         let (tptx, tprx) = channel(1024);
@@ -90,9 +94,8 @@ async fn main() -> Result<()> {
         if args.stdout {
             s.spawn(tp_consumer(tprx.resubscribe()));
         }
-
         if let Some(ref ct_file) = args.chrometracing {
-            s.spawn(chrometracing::store(ct_file, tprx.resubscribe()));
+            s.spawn(store_trace.store(ct_file, tprx.resubscribe()));
         }
         drop(tprx);
     });
