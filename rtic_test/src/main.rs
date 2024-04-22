@@ -51,11 +51,6 @@ mod app {
         });
         let _p = embassy_stm32::init(config);
 
-        let tim3_input_frequency =
-            <peripherals::TIM15 as embassy_stm32::rcc::low_level::RccPeripheral>::frequency().0;
-        let timer_token = rtic_monotonics::create_stm32_tim15_monotonic_token!();
-        Tim15::start(tim3_input_frequency, timer_token);
-
         let channels = rtt_target::rtt_init! {
             up: {
                 0: {
