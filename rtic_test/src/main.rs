@@ -4,9 +4,9 @@ use embassy_stm32::{pac, peripherals};
 use panic_semihosting as _;
 use rtic::app;
 
+use utrace;
 use utrace_rtt;
 use utrace_rtt::rtt_target;
-use utrace;
 
 use rtic_monotonics::{stm32::Tim15, Monotonic};
 
@@ -50,6 +50,11 @@ mod app {
             w.set_waysel(pac::icache::vals::Waysel::NWAYSETASSOCIATIVE);
         });
         let _p = embassy_stm32::init(config);
+
+        let tim3_input_frequency =
+            <peripherals::TIM15 as embassy_stm32::rcc::low_level::RccPeripheral>::frequency().0;
+        let timer_token = rtic_monotonics::create_stm32_tim15_monotonic_token!();
+        Tim15::start(tim3_input_frequency, timer_token);
 
         let channels = rtt_target::rtt_init! {
             up: {

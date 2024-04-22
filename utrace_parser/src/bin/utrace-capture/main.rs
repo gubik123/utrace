@@ -1,15 +1,12 @@
 use anyhow::Result;
 use chrometracing::Store;
 use clap::Parser;
-use serde_json::StreamDeserializer;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tokio::io::AsyncReadExt;
-use tokio::net::{TcpStream, ToSocketAddrs};
+use tokio::net::{TcpListener, TcpStream, ToSocketAddrs};
 use tokio::sync::broadcast::{channel, Receiver, Sender};
 use tracing::error;
-use tracing_subscriber::fmt;
-use tracing_subscriber::layer::SubscriberExt;
 use utrace_core::trace_point::{TracePointDataWithLocation, TracePointId};
 use utrace_parser::stream_parser::TimestampedTracepoint;
 
@@ -37,14 +34,40 @@ async fn net_reader<'a>(
         let mut sd = utrace_parser::stream_parser::StreamParser::new(id_mapping);
         let mut buf = [0u8; 16536];
 
-        while let Ok(size) = socket.read(&mut buf).await {
-            for p in sd.push_and_parse(&buf[..size]) {
-                chan.send(p);
+        while let Ok(read) = socket.read(&mut buf).await {
+            for p in sd.push_and_parse(&buf[..read]) {
+                chan.send(p).expect("Event queue overflow");
             }
         }
     } else {
         error!("Unable to connect to requested address.");
     }
+}
+
+async fn net_server_reader<'a>(
+    addr: impl ToSocketAddrs,
+    chan: Sender<TimestampedTracepoint<'a>>,
+    id_mapping: &'a HashMap<TracePointId, TracePointDataWithLocation>,
+) {
+    let l = TcpListener::bind(addr).await;
+
+    if let Err(e) = l {
+        error!("Unable to bind tcp socket. Error: {}", e);
+        return;
+    }
+    let l = l.unwrap();
+
+    while let Ok((mut socket, _)) = l.accept().await {
+        let mut sd = utrace_parser::stream_parser::StreamParser::new(id_mapping);
+        let mut buf = [0u8; 16536];
+
+        while let Ok(read) = socket.read(&mut buf).await {
+            for p in sd.push_and_parse(&buf[..read]) {
+                chan.send(p);
+            }
+        }
+    }
+    error!("Network error.");
 }
 
 async fn tp_consumer<'a>(mut chan: Receiver<TimestampedTracepoint<'a>>) {
