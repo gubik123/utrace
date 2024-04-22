@@ -6,6 +6,7 @@ use rtic::app;
 
 use utrace_rtt;
 use utrace_rtt::rtt_target;
+use utrace;
 
 use rtic_monotonics::{stm32::Tim15, Monotonic};
 
@@ -62,6 +63,7 @@ mod app {
         let tracing_rtt_channel: rtt_target::UpChannel = channels.up.0;
 
         utrace_rtt::init(tracing_rtt_channel);
+        utrace::init();
 
         let tim3_input_frequency =
             <peripherals::TIM15 as embassy_stm32::rcc::low_level::RccPeripheral>::frequency().0;
