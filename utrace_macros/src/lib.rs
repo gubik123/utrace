@@ -8,7 +8,7 @@ mod codegen;
 /// It will emit trace span from it's point of invocation to the end of the
 /// block it was invoked in, for example:
 ///
-/// ```rust
+/// ```ignore
 /// foo();
 /// {
 ///     bar();
@@ -65,7 +65,7 @@ pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 /// </div>
 ///
 /// Example:
-/// ```rust
+/// ```ignore
 /// #[utrace::trace(comment="This is my comment", noenter_fn, noexit_poll)]
 /// async fn my_future() {
 ///     ....
@@ -109,7 +109,7 @@ pub fn trace(
 /// This macro provides transport function to utrace. To create custom transport, one should
 /// do the following:
 ///
-/// ```
+/// ```ignore
 /// #[utrace::default_transport]
 /// fn transport(buf: &[u8]) {
 ///    ...
@@ -141,7 +141,7 @@ pub fn default_transport(
 /// This macro should be used to define timestamp function which will be used by utrace
 /// to obtain event timestamps, for example:
 ///
-/// ```
+/// ```ignore
 /// #[utrace::timestamp]
 /// fn timestamp() -> u64 {
 ///     ...

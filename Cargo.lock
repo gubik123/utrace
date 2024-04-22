@@ -1648,6 +1648,7 @@ dependencies = [
  "critical-section",
  "defmt",
  "proptest",
+ "utrace_core",
  "utrace_macros",
 ]
 
@@ -1656,6 +1657,7 @@ name = "utrace_core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "proptest",
  "serde",
  "serde_json",
 ]
@@ -1686,7 +1688,6 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
- "utrace",
  "utrace_core",
 ]
 

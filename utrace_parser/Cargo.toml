@@ -33,8 +33,7 @@ tokio = { version = "1.37.0", features = [
 ], optional = true }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
-utrace = { path = "../utrace" }
-utrace_core = { path = "../utrace_core" }
+utrace_core = { path = "../utrace_core", features = ["std"] }
 
 [features]
 cli = ["dep:tokio"]

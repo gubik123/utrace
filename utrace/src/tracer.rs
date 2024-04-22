@@ -1,5 +1,5 @@
-use crate::encoding::encode;
-use crate::encoding::TracePoint;
+use utrace_core::encoding::encode;
+use utrace_core::encoding::TracePoint;
 
 pub struct Tracer {
     exit_id: Option<u8>,

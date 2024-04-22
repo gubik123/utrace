@@ -6,7 +6,7 @@ platform-agnostic, async-friendly and low-overhead. The principle of operation o
 Main user-facing APIs are the two procedural macros that can be used to insert instrumentation - the attribute
 [#\[trace\]](crate::trace) and the function-like [trace_here]. Possible usages are demonstrated in this snippet:
 
-```rust
+```ignore
 #[trace]
 async fn do_something() {
 
@@ -35,7 +35,7 @@ While tracing instrumentation itself is platform-agnostic, it requires a way of 
 
 To provide a timestamp function to the library, use the [#\[timestamp\]](crate::timestamp) macro. For example:
 
-```rust
+```ignore
 #[utrace::timestamp]
 fn utrace_timestamp_fn() -> u64 {
     (Tim15::now() - <Tim15 as Monotonic>::ZERO).to_micros()
@@ -46,7 +46,7 @@ In the current version, the signature of the timestamp function must be `rust fn
 
 To define a transport, annotate a function with [#\[utrace::default_transport\]] like this:
 
-```rust
+```ignore
 #[utrace_macros::default_transport]
 pub fn write(buf: &[u8]) {
     ...
@@ -68,7 +68,7 @@ to your Cargo.toml.
 The metadata, required for trace interpretation is stored in the output elf binary. Correct bundling of this metadata requires passing
 *utrace_linker.x* script to a linker during your binary linking. It could be done either in *build.rs* script by adding something like
 
-```rust
+```ignore
 println!("cargo::rustc-link-arg=-Tutrace_linker.x");
 ```
 
