@@ -51,7 +51,6 @@ impl<'a, 'b> Iterator for StreamParserIter<'a, 'b> {
         while let Some((&b, rest)) = self.incoming.split_first() {
             self.incoming = rest;
             if let Some(tp) = self.inner.decoder_queue.push_byte(b) {
-                println!("{}, {}", tp.id, tp.delta_t);
                 if tp.id == 0 && tp.delta_t == 0 {
                     // self.inner.timestamp = 0;
                     return Some(TimestampedTracepoint::Reset);
