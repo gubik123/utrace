@@ -9,7 +9,9 @@ mod codegen;
 
 /// This macro should be used if you want to trace a specific execution span.
 /// It will emit trace span from it's point of invocation to the end of the
-/// block it was invoked in, for example:
+/// block it was invoked in.
+///
+/// For example:
 ///
 /// ```ignore
 /// foo();
@@ -47,7 +49,7 @@ pub fn trace_here(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 
 /// This attribute can be applied to functions and async functions to instrument them.
 /// By default, when applied to a function, it will trace function entry and function exit.
-/// If applied to `async fn`, it will report creation, drop and poll spans of respective Future.
+/// If applied to `async fn`, it will report creation, drop and poll spans of the respective Future.
 ///
 /// This macro accepts following parameters:
 /// - `comment=S` --- optional string, which will be saved in the metadata for trace interpretation tool
@@ -107,8 +109,9 @@ pub fn trace(
     expanded.into()
 }
 
-/// This macro provides transport function to utrace. To create custom transport, one should
-/// do the following:
+/// This macro provides a transport implementation for utrace.
+///
+/// To create custom transport, one should do the following:
 ///
 /// ```ignore
 /// #[utrace::default_transport]
@@ -140,7 +143,9 @@ pub fn default_transport(
 }
 
 /// This macro should be used to define timestamp function which will be used by utrace
-/// to obtain event timestamps, for example:
+/// to obtain event timestamps.
+///
+/// For example:
 ///
 /// ```ignore
 /// #[utrace::timestamp]
