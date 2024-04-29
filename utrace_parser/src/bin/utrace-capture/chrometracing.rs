@@ -229,7 +229,7 @@ impl Store {
                         }
                         TimestampedTracepoint::Reset => {
                             let _ = file.write_all(b"]").await;
-                            break 'reset_loop;
+                            continue 'reset_loop;
                         }
                     }
                 }
