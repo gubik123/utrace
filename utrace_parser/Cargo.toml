@@ -2,6 +2,16 @@
 name = "utrace_parser"
 version = "0.1.0"
 edition = "2021"
+authors = [
+    "Evgenii Guberna <gubik123@gmail.com>",
+    "Dmitriy Negrov <dmitriynegrov@gmail.com>",
+]
+categories = ["embedded", "development-tools::profiling", "no-std"]
+repository = "https://github.com/gubik123/utrace"
+license = "MIT OR Apache-2.0"
+description = "Instrumentation-based profiling library for embedded targets with async support"
+readme = "../README.md"
+keywords = ["embedded", "profiling", "async"]
 
 [[bin]]
 name = "utrace-capture"
@@ -34,7 +44,7 @@ tokio = { version = "1.37.0", features = [
 ], optional = true }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
-utrace_core = { path = "../utrace_core", features = ["std"] }
+utrace_core = { version = "0.1.0", path = "../utrace_core", features = ["std"] }
 
 [features]
 cli = ["dep:tokio"]

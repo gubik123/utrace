@@ -2,7 +2,6 @@ use anyhow::{bail, Result};
 use chrometracing::Store;
 use clap::Parser;
 use std::collections::HashMap;
-use std::env::args;
 use std::path::PathBuf;
 use tokio::io::AsyncReadExt;
 use tokio::net::{TcpListener, TcpStream, ToSocketAddrs};
@@ -72,7 +71,7 @@ async fn net_server_reader<'a>(
 
         while let Ok(read) = socket.read(&mut buf).await {
             for p in sd.push_and_parse(&buf[..read]) {
-                chan.send(p);
+                chan.send(p).expect("Event queue overflow");
             }
         }
     }

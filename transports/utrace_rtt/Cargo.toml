@@ -2,8 +2,17 @@
 name = "utrace_rtt"
 version = "0.1.0"
 edition = "2021"
+authors = [
+    "Evgenii Guberna <gubik123@gmail.com>",
+    "Dmitriy Negrov <dmitriynegrov@gmail.com>",
+]
+categories = ["embedded", "development-tools::profiling", "no-std"]
+repository = "https://github.com/gubik123/utrace"
+license = "MIT OR Apache-2.0"
+description = "Instrumentation-based profiling library for embedded targets with async support"
+readme = "../../README.md"
+keywords = ["embedded", "profiling", "async"]
 
 [dependencies]
-utrace_macros = { path = "../../utrace_macros" }
+utrace_macros = { version = "0.1.0", path = "../../utrace_macros" }
 rtt-target = "0.5.0"
-

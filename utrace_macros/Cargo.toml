@@ -2,6 +2,16 @@
 name = "utrace_macros"
 version = "0.1.0"
 edition = "2021"
+authors = [
+    "Evgenii Guberna <gubik123@gmail.com>",
+    "Dmitriy Negrov <dmitriynegrov@gmail.com>",
+]
+categories = ["embedded", "development-tools::profiling", "no-std"]
+repository = "https://github.com/gubik123/utrace"
+license = "MIT OR Apache-2.0"
+description = "Instrumentation-based profiling library for embedded targets with async support"
+readme = "../README.md"
+keywords = ["embedded", "profiling", "async"]
 
 [lib]
 proc-macro = true
@@ -11,4 +21,4 @@ proc-macro2 = { version = "1.0.79", features = ["span-locations"] }
 quote = "1.0.35"
 syn = { version = "2.0.55", features = ["full"] }
 darling = "0.20.8"
-utrace_core = { path = "../utrace_core", features = ["std"] }
+utrace_core = { version = "0.1.0", path = "../utrace_core", features = ["std"] }
