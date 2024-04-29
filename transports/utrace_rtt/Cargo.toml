@@ -1,6 +1,6 @@
 [package]
 name = "utrace_rtt"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = [
     "Evgenii Guberna <gubik123@gmail.com>",
@@ -14,5 +14,5 @@ readme = "../../README.md"
 keywords = ["embedded", "profiling", "async"]
 
 [dependencies]
-utrace_macros = { version = "0.1.0", path = "../../utrace_macros" }
+utrace_macros = { version = "0.1.1", path = "../../utrace_macros" }
 rtt-target = "0.5.0"

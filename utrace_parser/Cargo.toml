@@ -1,6 +1,6 @@
 [package]
 name = "utrace_parser"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = [
     "Evgenii Guberna <gubik123@gmail.com>",
@@ -44,7 +44,7 @@ tokio = { version = "1.37.0", features = [
 ], optional = true }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
-utrace_core = { version = "0.1.0", path = "../utrace_core", features = ["std"] }
+utrace_core = { version = "0.1.1", path = "../utrace_core", features = ["std"] }
 
 [features]
 cli = ["dep:tokio"]

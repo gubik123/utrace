@@ -1,6 +1,6 @@
 [package]
 name = "utrace_macros"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = [
     "Evgenii Guberna <gubik123@gmail.com>",
@@ -21,4 +21,4 @@ proc-macro2 = { version = "1.0.79", features = ["span-locations"] }
 quote = "1.0.35"
 syn = { version = "2.0.55", features = ["full"] }
 darling = "0.20.8"
-utrace_core = { version = "0.1.0", path = "../utrace_core", features = ["std"] }
+utrace_core = { version = "0.1.1", path = "../utrace_core", features = ["std"] }

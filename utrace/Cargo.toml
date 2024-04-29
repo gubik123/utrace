@@ -1,7 +1,7 @@
 [package]
 name = "utrace"
 edition = "2021"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
     "Evgenii Guberna <gubik123@gmail.com>",
     "Dmitriy Negrov <dmitriynegrov@gmail.com>",
@@ -16,8 +16,8 @@ keywords = ["embedded", "profiling", "async"]
 [dependencies]
 critical-section = "1.1.2"
 defmt = "0.3.6"
-utrace_core = { version = "0.1.0", path = "../utrace_core" }
-utrace_macros = { version = "0.1.0", path = "../utrace_macros" }
+utrace_core = { version = "0.1.1", path = "../utrace_core" }
+utrace_macros = { version = "0.1.1", path = "../utrace_macros" }
 
 
 [features]
