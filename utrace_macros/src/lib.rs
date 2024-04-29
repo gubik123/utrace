@@ -17,7 +17,7 @@ mod codegen;
 /// foo();
 /// {
 ///     bar();
-///     trace_here!(comment="Something is happening");  // <- Trace span will be started here.
+///     utrace::trace_here!(comment="Something is happening");  // <- Trace span will be started here.
 ///     baz();
 /// }                                                   // <- Trace span will be ended here.
 /// ```
