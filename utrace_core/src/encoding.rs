@@ -1,5 +1,4 @@
 // Simplistic comma-free self-synchronizing encoder/decoder
-use core::mem::size_of;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct TracePoint {
@@ -11,7 +10,7 @@ pub fn encode<W>(tp: TracePoint, writer: W)
 where
     W: for<'a> FnOnce(&'a [u8]),
 {
-    const MAX_TS_SIZE: usize = size_of::<u32>() * 8 / 7 + 1;
+    const MAX_TS_SIZE: usize = u32::BITS as usize / 7 + 1;
     let mut outbuf = [0; MAX_TS_SIZE + 1];
 
     outbuf[0] = tp.id;
@@ -56,7 +55,7 @@ impl Decoder {
                 let id = packet[0];
 
                 let mut delta_t: u32 = 0;
-                for b in (&packet[1..]).into_iter().rev() {
+                for b in packet[1..].iter().rev() {
                     delta_t <<= 7;
                     delta_t |= (b & 0x7f) as u32;
                 }
@@ -66,6 +65,13 @@ impl Decoder {
         }
 
         None
+    }
+}
+
+#[cfg(feature = "std")]
+impl Default for Decoder {
+    fn default() -> Self {
+        Decoder::new()
     }
 }
 

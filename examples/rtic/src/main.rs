@@ -4,8 +4,7 @@ use embassy_stm32::{pac, peripherals};
 use panic_semihosting as _;
 use rtic::app;
 
-use utrace;
-use utrace_rtt;
+use utrace_rtt as _;
 use utrace_rtt::rtt_target;
 
 use rtic_monotonics::{stm32::Tim15, Monotonic};

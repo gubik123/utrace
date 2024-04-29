@@ -41,10 +41,7 @@ impl Tracer {
         critical_section::with(|_| {
             let delta = crate::globals::default_timestamp_delta();
             encode(
-                TracePoint {
-                    delta_t: delta,
-                    id: id,
-                },
+                TracePoint { delta_t: delta, id },
                 crate::globals::default_write,
             );
         });

@@ -1,6 +1,8 @@
 use anyhow::{bail, Context, Result};
+use gimli::DwarfSections;
 use object::{Object, ObjectSection, ObjectSymbol};
-use std::{borrow, collections::HashMap, io::Read, path::Path};
+use std::borrow;
+use std::{collections::HashMap, io::Read, path::Path};
 use utrace_core::trace_point::{TracePointDataWithLocation, TracePointId};
 
 pub fn parse<T>(elf_file: T) -> Result<HashMap<TracePointId, TracePointDataWithLocation>>
@@ -57,15 +59,13 @@ where
         }
     };
 
-    let dwarf_cow =
-        gimli::Dwarf::load(&load_section).context("Unable to load DWARF info from elf")?;
-
     let borrow_section: &dyn for<'a> Fn(
         &'a borrow::Cow<[u8]>,
     ) -> gimli::EndianSlice<'a, gimli::RunTimeEndian> =
         &|section| gimli::EndianSlice::new(section, endian);
 
-    let dwarf = dwarf_cow.borrow(&borrow_section);
+    let dwarf = DwarfSections::load(&load_section).context("Unable to load DWARF info from elf")?;
+    let dwarf = dwarf.borrow(borrow_section);
 
     let mut iter = dwarf.units();
 
@@ -154,6 +154,16 @@ where
                 }
             }
         }
+    }
+
+    for (tp, idx) in trace_point_list.iter() {
+        ret.entry(*idx).or_insert(TracePointDataWithLocation {
+            info: serde_json::from_str(tp)
+                .with_context(|| format!("Cannot parse tracepoint {} metadata", idx))?,
+            path: None,
+            file_name: None,
+            line: None,
+        });
     }
 
     Ok(ret)

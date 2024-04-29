@@ -1,7 +1,7 @@
 cargo-features = ["per-package-target"]
 
 [package]
-name = "rtic_test"
+name = "rtic"
 version = "0.1.0"
 edition = "2021"
 forced-target = "thumbv8m.main-none-eabihf"
@@ -10,11 +10,15 @@ forced-target = "thumbv8m.main-none-eabihf"
 cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
 cortex-m-semihosting = "0.5.0"
 panic-semihosting = "0.6.0"
-rtic = { version = "2.1.1", features = ["thumbv8main-backend", "rtic-monotonics"] }
+rtic = { version = "2.1.1", features = [
+    "thumbv8main-backend",
+    "rtic-monotonics",
+] }
 embassy-stm32 = { version = "0.1.0", features = [
     "unstable-pac",
     "stm32u585vi",
-    "memory-x"] }
+    "memory-x",
+] }
 
 rtic-monotonics = { git = "https://github.com/DmitriyNE/rtic.git", features = [
     "stm32_tim15",
@@ -23,5 +27,5 @@ rtic-monotonics = { git = "https://github.com/DmitriyNE/rtic.git", features = [
     "embedded-hal-async",
 ] }
 
-utrace = { path = "../utrace", default-features = false }
-utrace_rtt = { path = "../transports/utrace_rtt" }
+utrace = { path = "../../utrace", default-features = false }
+utrace_rtt = { path = "../../transports/utrace_rtt" }

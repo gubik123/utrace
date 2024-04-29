@@ -19,7 +19,7 @@ enabled = true
 timeout = 3000
 show_timestamps = false
 channels = [
-    { up = 0, name = "Trace", up_mode = "NoBlockSkip", format = "String", socket = "127.0.0.1:12345" },
+    { up = 0, name = "Trace", up_mode = "NoBlockSkip", format = "BinaryLE", socket = "127.0.0.1:9001" },
   ]
 
 [default.gdb]

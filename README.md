@@ -3,7 +3,7 @@ utrace is an instrumentation-based profiling tool for embedded applications. It 
 platform-agnostic, async-friendly and low-overhead. The principle of operation of utrace was inspired by the fantastic [defmt logging library](https://defmt.ferrous-systems.com/).
 
 ## Usage
-Main user-facing APIs are the two procedural macros that can be used to insert instrumentation - the attribute
+Main user-facing APIs are two procedural macros that can be used to insert instrumentation - the attribute
 [#\[trace\]](crate::trace) and the function-like [trace_here]. Possible usages are demonstrated in this snippet:
 
 ```ignore
@@ -103,9 +103,11 @@ utrace-capture <path to firmware elf executable> --tcp localhost:9001 --out-ct t
 
 Traces will be captured in *trace_out_xxx.json* files. To finish capture, press *Ctrl+C*. These traces can be opened with [chrome://tracing](chrome://tracing) if you are using Chrome browser, or with [Perfetto UI](https://ui.perfetto.dev).
 
-Note, that probe-rs RTT feature tries to connect to server, instead of listening on a port, so you will need to use `--tcp-listen`
+Note, that probe-rs (cargo embed) RTT feature tries to connect to a server, instead of listening on a port, so you will need to use `--tcp-server`
 flag, eg:
 
 ```bash
-utrace-capture <path to firmware elf executable> --tcp-listen 0.0.0.0:9001 --out-ct trace_out
+utrace-capture <path to firmware elf executable> --tcp-server 0.0.0.0:9001 --out-ct trace_out
 ```
+
+Trace data can also be captured from stdin using `--stdin` flag.

@@ -3,10 +3,11 @@ members = [
     "utrace_macros",
     "utrace",
     "transports/utrace_rtt",
-    "rtic_test",
     "utrace_parser",
     "utrace_core",
 ]
+
+exclude = ["examples/rtic"]
 
 resolver = "2"
 

@@ -13,7 +13,5 @@ defmt = "0.3.6"
 utrace_core = { path = "../utrace_core" }
 utrace_macros = { path = "../utrace_macros" }
 
-[dev-dependencies]
-proptest = "1.4.0"
 
 [features]
