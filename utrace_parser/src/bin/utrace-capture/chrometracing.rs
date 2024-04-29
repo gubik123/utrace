@@ -227,13 +227,14 @@ impl Store {
                                 let _ = file.write_all(",\n".as_bytes()).await;
                             }
                         }
+
+                        // Properly close the JSON array
                         TimestampedTracepoint::Reset => {
                             let _ = file.write_all(b"]").await;
                             continue 'reset_loop;
                         }
                     }
                 }
-                // Properly close the JSON array
             } else {
                 error!("Cannot open file {fname} for writing");
             }

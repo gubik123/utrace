@@ -7,18 +7,18 @@ Main user-facing APIs are two procedural macros that can be used to insert instr
 [#\[trace\]](crate::trace) and the function-like [trace_here]. Possible usages are demonstrated in this snippet:
 
 ```ignore
-#[trace]
+#[utrace::trace]
 async fn do_something() {
 
 }
 
-#[trace]
+#[utrace::trace]
 fn do_something_else() {
 
 }
 
 {
-    trace_here!();
+    utrace::trace_here!();
     ...
     ...
 }
@@ -44,10 +44,10 @@ fn utrace_timestamp_fn() -> u64 {
 
 In the current version, the signature of the timestamp function must be `rust fn() -> u64`.
 
-To define a transport, annotate a function with [#\[utrace::default_transport\]] like this:
+To define a transport, annotate a function with [#\[default_transport\]](crate::default_transport) like this:
 
 ```ignore
-#[utrace_macros::default_transport]
+#[utrace::default_transport]
 pub fn write(buf: &[u8]) {
     ...
 }
