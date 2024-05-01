@@ -15,7 +15,6 @@ keywords = ["embedded", "profiling", "async"]
 
 [dependencies]
 critical-section = "1.1.2"
-defmt = "0.3.6"
 utrace_core = { version = "0.1.1", path = "../utrace_core" }
 utrace_macros = { version = "0.1.1", path = "../utrace_macros" }
 
