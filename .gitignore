@@ -2,3 +2,5 @@
 **/mutants*
 **/.vscode
 **/*.json
+**/flamegraph.svg
+**/.DS_Store
