@@ -1,9 +1,13 @@
+use indicatif::ProgressStyle;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::io::Write;
 use std::time::SystemTime;
 use std::time::UNIX_EPOCH;
-use tokio::{io::AsyncWriteExt, sync::broadcast::Receiver};
+use tokio::sync::broadcast::error::RecvError;
+use tokio::sync::broadcast::Receiver;
 use tracing::error;
+use tracing::warn;
 use utrace_parser::stream_parser::TimestampedTracepoint;
 
 #[derive(Serialize, PartialEq)]
@@ -95,14 +99,23 @@ impl Store {
             let current_time = since_the_epoch.as_secs();
             let fname_ts = format!("{}_{}.json", fname.to_owned(), current_time);
 
-            if let Ok(mut file) = tokio::fs::OpenOptions::new()
+            if let Ok(mut file) = std::fs::OpenOptions::new()
                 .write(true)
                 .create(true)
                 .open(fname_ts)
-                .await
             {
-                let _ = file.write_all(b"[ \n").await;
-                while let Ok(msg) = chan.recv().await {
+                let _ = file.write_all(b"[ \n");
+                loop {
+                    let msg = chan.recv().await;
+                    if let Err(RecvError::Closed) = msg {
+                        warn!("Channel failure: {:?}", msg);
+                        break;
+                    } else if let Err(RecvError::Lagged(_)) = msg {
+                        warn!("Channel lagged: {:?}", msg);
+                        continue;
+                    }
+
+                    let msg = msg.unwrap();
                     match msg {
                         TimestampedTracepoint::Point {
                             timestamp: ts,
@@ -213,24 +226,22 @@ impl Store {
                                 tid: 1,
                                 ts,
                             };
-                            let _ = file
-                                .write_all(serde_json::to_string(&msg_out).unwrap().as_bytes())
-                                .await;
-                            let _ = file.write_all(",\n".as_bytes()).await;
+                            let _ =
+                                file.write_all(serde_json::to_string(&msg_out).unwrap().as_bytes());
+                            let _ = file.write_all(",\n".as_bytes());
 
                             if let Some(arrow_event) = arrow {
-                                let _ = file
-                                    .write_all(
-                                        serde_json::to_string(&arrow_event).unwrap().as_bytes(),
-                                    )
-                                    .await;
-                                let _ = file.write_all(",\n".as_bytes()).await;
+                                let _ = file.write_all(
+                                    serde_json::to_string(&arrow_event).unwrap().as_bytes(),
+                                );
+                                let _ = file.write_all(",\n".as_bytes());
                             }
                         }
 
                         // Properly close the JSON array
                         TimestampedTracepoint::Reset => {
-                            let _ = file.write_all(b"]").await;
+                            let _ = file.write_all(b"]");
+                            warn!("Reset");
                             continue 'reset_loop;
                         }
                     }
