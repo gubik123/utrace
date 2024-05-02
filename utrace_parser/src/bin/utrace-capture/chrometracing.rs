@@ -1,4 +1,3 @@
-use indicatif::ProgressStyle;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::io::Write;
@@ -123,7 +122,12 @@ impl Store {
                         } => {
                             let mut arrow: Option<ArrowEvent> = None;
                             let mut arrow_type = ArrowType::ArrowStep;
-                            let name = tp.info.name.to_owned().unwrap();
+                            let name = tp
+                                .info
+                                .name
+                                .clone()
+                                .or(tp.info.comment.clone())
+                                .unwrap_or(tp.info.id.to_string());
 
                             let event_type: EventType = if tp.info.kind.is_enter() {
                                 let existing_event: &mut TraceEntry;
