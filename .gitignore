@@ -4,3 +4,4 @@
 **/*.json
 **/flamegraph.svg
 **/.DS_Store
+*ipynb*
